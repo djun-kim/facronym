@@ -1,0 +1,86 @@
+body {
+    margin-left: 5pc;
+    margin-top: 7pc;
+}
+
+input.searchBox {
+    width: 6pc;
+}
+
+.input-pane {
+    background-color: #eee;
+    padding: 10px 20px 10px 20px;
+    margin-right: 30px;
+}
+
+.search-input {
+    float: right;
+    padding: 0px 30px 0px 0px ;
+    margin-top: 3px;
+    clear: both;
+}
+
+.add-entry {
+    float: right;
+    padding: 0px 30px 0px 0px ;
+    margin: 3px;
+    clear: both;
+}
+
+.acronym-display {
+    display: block;
+}
+
+.acro-head {
+    float: left;
+    width: 20pc;
+}
+
+.acro-wrap {
+    float: left;
+}
+
+.edit-tab {
+    float: left;
+    margin-left: 10px;
+}
+
+.acro-block {
+    float: left;
+    padding-bottom: 10px;
+}
+
+.acro-block.editing {
+    background-color: #eee;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+.acro-block:hover .tab {
+    opacity: 0.9;
+    border: 1px solid #ddd;
+    transition-delay: 0.5s;
+}
+
+.acro-head:hover .def {
+    background: #eee;
+}
+
+.tab {
+    float: left;
+    width: 1pc;
+    padding: 0px 10px 0px 10px;
+    opacity: 0;
+    border: 1px solid #fff;
+}
+
+.delete-entry {
+}
+
+.edit-entry {
+}
+
+.edit-options {
+    float: left;
+    clear: both;
+}

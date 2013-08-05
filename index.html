@@ -1,0 +1,98 @@
+<!doctype html>
+<html ng-app>
+  <head>
+    <title>Acronyms</title>
+<!--
+    <script src="../libraries/angular/angular.min.js"></script>
+-->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+    <script src="./js/facronym.js"></script>
+
+<!--
+    <link rel="stylesheet"
+    href="../libraries/bootstrap/css/bootstrap.css"/>
+-->
+    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" >
+    <link rel="stylesheet" href="./css/facronym.css"/>
+  </head>
+
+<body ng-app>
+  <div ng-controller="AcroCntrl">
+
+    <div class="input-prepend search-input">
+      <span class="add-on"><i class='icon-search'></i></span><input 
+      type="text" ng-model="searchText" 
+      class='searchBox'>
+    </div>
+
+     <h2 class="title">Acronyms</h2>
+    
+     <div ng-show="inputEnabled" class="input-pane">
+       <h4>Add a new acronym:</h4>
+       <form class="form-horizontal">
+         <label>Acronym:</label>
+         <input type="text" ng-model="dictionary.newentry.acronym" ng-model-instant/>
+         <label>Expansion:</label>
+         <textarea rows="3" ng-model="dictionary.newentry.expansion" ng-model-instant></textarea>
+         <br/><br/>
+         <button class="btn" ng-click="createEntry()"><i
+       class="icon-plus"></i>Add</button>
+       <br/><br/>
+       <a href="#" ng-click="inputEnabled=!inputEnabled">Done editing</a>
+       </form>
+     </div>
+
+    <hr/>
+     
+    <div class="acronym-display">
+    <dl ng-repeat="def in dictionary.entries | orderBy:'acronym' | filter:searchText ">
+      <div class="acro-block" ng-hide="def.editorEnabled">
+        <dt class="head">
+          <div class="acro-head">
+	    <div class="acro-wrap">{{def.acronym}}</div>
+            <div class="edit-tab">
+              <div class="tab delete-entry"
+                   ng-click="deleteEntry({{def.id}})"><i class="icon-trash"></i></div>
+              <div class="tab edit-entry"
+                   ng-click="editEntry({{def.id}})"><i class="icon-pencil"></i></div>
+	    </div>
+          </div>
+        </dt>
+        <dd class="def">{{def.expansion}}</dd>
+      </div>
+      
+      <div class="acro-block editing" ng-show="def.editorEnabled">
+        <dt class="head">
+          <div class="acro-head">
+            <input type="text" ng-model="def.newentry.acronym"/>
+          </div>
+        </dt>
+        <dd class="def">
+	  <textarea rows="3" ng-model="def.newentry.expansion"></textarea>
+	</dd>
+	<div class="edit-options">
+	  <a href="#" ng-click="save(def.id)">Save</a>
+	  or
+	  <a href="#" ng-click="disableEditor(def.id)">cancel</a>.
+	</div>
+      </div>
+      
+    </dl>
+    </div>
+    
+    <div ng-hide="inputEnabled" class="add-entry">
+       <a href="#" ng-click="inputEnabled=!inputEnabled">Enter a new acronym</a>
+    </div>
+
+    <br/>
+    <div style="clear: both; width: 100%;">
+      <hr/>
+    </div>
+    <!-- -->
+     Debug View
+    <pre>dictionary={{dictionary | json}}</pre>
+     <!--     -->
+   </div>
+
+</body>
+</html>
