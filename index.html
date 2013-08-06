@@ -20,9 +20,8 @@
   <div ng-controller="AcroCntrl">
 
     <div class="input-prepend search-input">
-      <span class="add-on"><i class='icon-search'></i></span><input 
-      type="text" ng-model="searchText" 
-      class='searchBox'>
+      <span class="add-on"><i class='icon-search'></i></span>
+      <input type="text" ng-model="searchText" class='searchBox'>
     </div>
 
      <h2 class="title">Acronyms</h2>
@@ -35,8 +34,7 @@
          <label>Expansion:</label>
          <textarea rows="3" ng-model="dictionary.newentry.expansion" ng-model-instant></textarea>
          <br/><br/>
-         <button class="btn" ng-click="createEntry()"><i
-       class="icon-plus"></i>Add</button>
+         <button class="btn" ng-click="createEntry()"><i class="icon-plus"></i>Add</button>
        <br/><br/>
        <a href="#" ng-click="inputEnabled=!inputEnabled">Done editing</a>
        </form>
@@ -54,7 +52,7 @@
               <div class="tab delete-entry"
                    ng-click="deleteEntry({{def.id}})"><i class="icon-trash"></i></div>
               <div class="tab edit-entry"
-                   ng-click="editEntry({{def.id}})"><i class="icon-pencil"></i></div>
+                   ng-click="enableEditor({{def.id}})"><i class="icon-pencil"></i></div>
 	    </div>
           </div>
         </dt>
@@ -71,7 +69,7 @@
 	  <textarea rows="3" ng-model="def.newentry.expansion"></textarea>
 	</dd>
 	<div class="edit-options">
-	  <a href="#" ng-click="save(def.id)">Save</a>
+	  <a href="#" ng-click="saveEntry(def.id)">Save</a>
 	  or
 	  <a href="#" ng-click="disableEditor(def.id)">cancel</a>.
 	</div>
@@ -88,10 +86,15 @@
     <div style="clear: both; width: 100%;">
       <hr/>
     </div>
-    <!-- -->
-     Debug View
-    <pre>dictionary={{dictionary | json}}</pre>
-     <!--     -->
+
+    <div ng-hide="debugEnabled">
+      <a href="#" ng-click="toggleDebug()"><i class='icon-plus'></i></a> Debug View
+    </div>
+    <div ng-show="debugEnabled">
+       <a href="#" ng-click="toggleDebug()"><i class='icon-minus'></i></a> Debug View
+        <pre>dictionary={{dictionary | json}}</pre>
+    </div>
+    
    </div>
 
 </body>
