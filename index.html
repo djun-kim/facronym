@@ -1,22 +1,25 @@
 <!doctype html>
-<html ng-app>
+<html>
   <head>
     <title>Acronyms</title>
-<!--
-    <script src="../libraries/angular/angular.min.js"></script>
--->
-    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+
+<script src="../libraries/angular/angular.min.js"></script>
+    <script src="../libraries/angular/angular-resource.min.js"></script>
     <script src="./js/facronym.js"></script>
 
-<!--
-    <link rel="stylesheet"
-    href="../libraries/bootstrap/css/bootstrap.css"/>
--->
-    <link rel="stylesheet" href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css" >
+    <link rel="stylesheet" href="../libraries/bootstrap/css/bootstrap.css"/>
     <link rel="stylesheet" href="./css/facronym.css"/>
+
+<!--
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.5/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.0.6/angular-resource.min.js"></script>
+    <link rel="stylesheet"
+    href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.2/css/bootstrap-combined.min.css"
+    >
+-->
   </head>
 
-<body ng-app>
+<body ng-app="Facronym">
   <div ng-controller="AcroCntrl">
 
     <div class="input-prepend search-input">
@@ -24,78 +27,112 @@
       <input type="text" ng-model="searchText" class='searchBox'>
     </div>
 
-     <h2 class="title">Acronyms</h2>
-    
-     <div ng-show="inputEnabled" class="input-pane">
-       <h4>Add a new acronym:</h4>
-       <form class="form-horizontal">
-         <label>Acronym:</label>
-         <input type="text" ng-model="dictionary.newentry.acronym" ng-model-instant/>
-         <label>Expansion:</label>
-         <textarea rows="3" ng-model="dictionary.newentry.expansion" ng-model-instant></textarea>
-         <br/><br/>
-         <button class="btn" ng-click="createEntry()"><i class="icon-plus"></i>Add</button>
-       <br/><br/>
-       <a href="#" ng-click="inputEnabled=!inputEnabled">Done editing</a>
-       </form>
-     </div>
+    <h2 class="title">Acronyms</h2>
 
-    <hr/>
-     
-    <div class="acronym-display">
-    <dl ng-repeat="def in dictionary.entries | orderBy:'acronym' | filter:searchText ">
-      <div class="acro-block" ng-hide="def.editorEnabled">
-        <dt class="head">
-          <div class="acro-head">
-	    <div class="acro-wrap">{{def.acronym}}</div>
-            <div class="edit-tab">
-              <div class="tab delete-entry"
-                   ng-click="deleteEntry({{def.id}})"><i class="icon-trash"></i></div>
-              <div class="tab edit-entry"
-                   ng-click="enableEditor({{def.id}})"><i class="icon-pencil"></i></div>
-	    </div>
-          </div>
-        </dt>
-        <dd class="def">{{def.expansion}}</dd>
-      </div>
-      
-      <div class="acro-block editing" ng-show="def.editorEnabled">
-        <dt class="head">
-          <div class="acro-head">
-            <input type="text" ng-model="def.newentry.acronym"/>
-          </div>
-        </dt>
-        <dd class="def">
-	  <textarea rows="3" ng-model="def.newentry.expansion"></textarea>
-	</dd>
-	<div class="edit-options">
-	  <a href="#" ng-click="saveEntry(def.id)">Save</a>
-	  or
-	  <a href="#" ng-click="disableEditor(def.id)">cancel</a>.
-	</div>
-      </div>
-      
-    </dl>
-    </div>
-    
-    <div ng-hide="inputEnabled" class="add-entry">
-       <a href="#" ng-click="inputEnabled=!inputEnabled">Enter a new acronym</a>
-    </div>
-
-    <br/>
+    <div ng-view></div>
+          
     <div style="clear: both; width: 100%;">
       <hr/>
     </div>
-
+    
     <div ng-hide="debugEnabled">
-      <a href="#" ng-click="toggleDebug()"><i class='icon-plus-sign'></i></a> Debug View
+      <a href="#/" ng-click="toggleDebug()"><i class='icon-plus-sign'></i></a> Debug View
     </div>
     <div ng-show="debugEnabled">
-       <a href="#" ng-click="toggleDebug()"><i class='icon-minus-sign'></i></a> Debug View
-        <pre>dictionary={{dictionary | json}}</pre>
+      <a href="#/" ng-click="toggleDebug()"><i class='icon-minus-sign'></i></a> Debug View
+      <pre>dictionary={{dictionary | json}}</pre>
+    </div>
+  </div>
+
+  <!-- CACHE FILE: list.html -->
+  <script type="text/ng-template" id="list.html">
+
+  <div ng-show="inputEnabled" class="input-pane">
+      <h4>Add a new acronym:</h4>
+      <form class="form-horizontal">
+        <label>Acronym:</label>
+        <input type="text" ng-model="dictionary.newentry.acronym" ng-model-instant required/>
+        <label>Expansion:</label>
+        <textarea rows="3" ng-model="dictionary.newentry.expansion" ng-model-instant required >
+        </textarea>
+        <br/><br/>
+        <button class="btn" ng-click="createEntry()"><i class="icon-plus"></i>Add</button>
+        <br/><br/>
+        <a href="#" ng-click="inputEnabled=!inputEnabled">Done editing</a>
+      </form>
+      <hr/>
     </div>
     
-   </div>
+    <div class="acronym-display">
+      <dl ng-repeat="def in dictionary.rows | orderBy:'doc.acronym' | filter:searchText ">
+ 
+        <div class="acro-block" ng-hide="def.editorEnabled">
+          <dt class="head">
+            <div class="acro-head">
+              
+              <div class="acro-wrap">
+                {{def.doc.acronym}}
+              </div>
+              
+              <div class="edit-tab" ng-controller="EditCntrl">
+                <div class="tab delete-entry">
+                  <a href="#/delete/{{def.id}}?rev={{def.doc._rev}}">
+                    <i class="icon-trash"></i>
+                  </a>
+                </div>
+                <div class="tab edit-entry">
+                  <a href="#/edit/{{def.id}}"><i class="icon-pencil"></i></a>
+                </div>
+              </div>
+              
+            </div>
+          </dt>
+          <dd class="def">{{def.doc.expansion}}</dd>
+          
+          <div class="delete-confirm-dialog"
+            ng-controller="DeleteCntrl"
+            ng-show="params.acroId==def.id">
+            
+            <span class='confirm-prompt'>Really delete?</span>
 
+            <pre>
+            {{name}}
+            {{params}}
+            {{my_this | json }}
+            </pre>
+            <form name="myForm">
+            <button ng-click="deleteEntry()" class="btn btn-danger">Delete</button>
+            <a href="#/">Cancel</a>
+            </form>
+          </div>
+
+        </div>
+        
+        <div class="acro-block editing" ng-show="def.doc.editorEnabled">
+          <dt class="head">           
+            <div class="acro-head">
+              <input type="text" ng-model="def.newentry.acronym"/>
+            </div>            
+          </dt>
+          
+          <dd class="def">
+            <textarea rows="3" ng-model="def.newentry.expansion"></textarea>
+          </dd>
+          
+          <div class="edit-options">
+            <a href="#" ng-click="saveEntry(def.id)">Save</a>
+            or
+            <a href="#" ng-click="disableEditor(def.id)">cancel</a>.
+          </div>
+          
+        </div>
+      </dl>
+      
+    <div ng-hide="inputEnabled" class="add-entry">
+      <a href="#/new" ng-click="inputEnabled=!inputEnabled">Enter a new acronym</a>
+    </div>
+    
+  </script>
+    
 </body>
 </html>
