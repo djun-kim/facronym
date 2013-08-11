@@ -1,6 +1,5 @@
 body {
-    margin-left: 5pc;
-    margin-top: 7pc;
+    margin: 5pc 2pc 2pc 5pc;
 }
 
 input.searchBox {
@@ -48,6 +47,7 @@ input.searchBox {
 .acro-block {
     float: left;
     padding-bottom: 10px;
+    clear: both;
 }
 
 .acro-block.editing {
@@ -83,4 +83,15 @@ input.searchBox {
 .edit-options {
     float: left;
     clear: both;
+}
+
+.delete-confirm-dialog {
+    background: #eee;
+    padding: 10px 10px 1px 10px;
+    margin-left: 10px;
+}
+
+.confirm-prompt {
+    font-size: 130%;
+    font-weight: bold;
 }
