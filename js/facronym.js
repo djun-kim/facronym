@@ -2,28 +2,40 @@ var myApp = angular.module('facronym', ['CouchDB']).
   config(function($routeProvider) {
     $routeProvider.
       when('/',               {controller:ListCntrl, templateUrl:'list.html'}).
-      when('/edit/:acroId',   {controller:EditCntrl, templateUrl:'list.html'}).
+      when('/update/:acroId', {controller:UpdateCntrl, templateUrl:'list.html'}).
       when('/delete/:acroId', {controller:DeleteCntrl, templateUrl:'list.html'}).
       when('/new',            {controller:CreateCntrl, templateUrl:'list.html'}).
       otherwise({redirectTo:'/'});
   });
 
+
+/**
+ * Controller ListCntrl
+ */
 function ListCntrl($scope, FacronymCouch) {
-  FacronymCouch.dictionary = $scope.dictionary;
+  FacronymCouch.acrolist = $scope.acrolist;
 }
 
-function EditCntrl($scope, $location, $routeParams, FacronymCouch) {
+/**
+ * Controller UpdateCntrl
+ */
+function UpdateCntrl($scope, $location, FacronymCouch) {
+  $scope.name = 'UpdateCntrl';
 
-  $scope.dictionary = FacronymCouch.dictionary;
+  $scope.editAction = 'edit';
+  $scope.acrolist = FacronymCouch.acrolist;
 
-  $scope.name = 'EditCntrl';
+  $scope.entry = {};
+  $scope.entry.acronym = $scope.$parent.def.doc.acronym;
+  $scope.entry.expansion = $scope.$parent.def.doc.expansion;
+  
 
   /**
    * Enables the editing for the entry given by the parameter 'entry'.
-   * @param {Integer} entry The id of the entry to able edit on.
+   * @param {Integer} entry The id of the entry to enable edit on.
    */
   $scope.enableEditor = function(entry) {
-    var entries = $scope.dictionary.rows;
+    var entries = $scope.acrolist.rows;
 
     i = 0;
     while ((i < entries.length) && (entries[i].id !== entry)) { i++; }
@@ -40,7 +52,7 @@ function EditCntrl($scope, $location, $routeParams, FacronymCouch) {
    * @param {Integer} entry The id of the entry to disable edit on.
    */
   $scope.disableEditor = function(entry) {
-    var entries = $scope.dictionary.rows;
+    var entries = $scope.acrolist.rows;
 
     i = 0;
     while ((i < entries.length) && (entries[i].id !== entry)) { i++; }
@@ -52,33 +64,26 @@ function EditCntrl($scope, $location, $routeParams, FacronymCouch) {
 
 }
 
+/**
+ * Controller DeleteCntrl
+ *    Handles deletion of an entry of the acronym list.
+ */
 function DeleteCntrl($scope,  $location, $routeParams, FacronymCouch) {
 
-  $scope.dictionary = FacronymCouch.dictionary;
-
-  $scope.name = 'DeleteCntrl';
-
+  $scope.acrolist = FacronymCouch.acrolist;
   $scope.name = "DeleteCntrl";
+  $scope.editAction = 'delete';
   $scope.params = $routeParams;
 
   $scope.deleteEntry = function() {
-
-    var dict = $scope.dictionary;
+    var dict = $scope.acrolist;
     var id = $scope.params.acroId;
     var rev = $scope.params.rev;
 
     // remove entry from database
     FacronymCouch.delete({q: $scope.params.acroId, rev: $scope.params.rev});
 
-    alert("Removed entry");
-
-    for (var i = 0, ii = dict.rows.length; i < ii; i++) {
-      alert("i = "+ i +  
-            ";\ndict.rows[i].id = " + dict.rows[i].id +
-            ";\nid = " + id +
-            ";\ndict.rows[i].doc._rev = " + dict.rows[i].doc._rev +
-            ";\nrev = " + rev
-           );
+    for (var i = 0; i < dict.rows.length; i++) {
       if ((id === dict.rows[i].id) && (rev === dict.rows[i].doc._rev)) {
         dict.rows.splice(i, 1);
       }
@@ -86,18 +91,23 @@ function DeleteCntrl($scope,  $location, $routeParams, FacronymCouch) {
   };
 }
 
+/**
+ * Controller CreateCntrl
+ *    Handles creation of a new entry.
+ *  @todo - update model, don't just update the datastore.
+ */
 function CreateCntrl($scope,  $location, $routeParams, FacronymCouch) {
 
-  $scope.dictionary = FacronymCouch.dictionary;
+  $scope.acrolist = FacronymCouch.acrolist;
   $scope.name = 'CreateCntrl';
 
   $scope.inputEnabled = true;
 
   $scope.createEntry = function() {
-    var dict = $scope.dictionary;
+    var dict = $scope.acrolist;
 
-//    dict.newentry.editorEnabled = false;
-//    dict.rows.push(dict.newentry);
+    dict.newentry.editorEnabled = false;
+    dict.rows.push(dict.newentry);
   
     FacronymCouch.save(dict.newentry, function(entry) {
       $location.path('/edit/' + entry.id);
@@ -106,9 +116,10 @@ function CreateCntrl($scope,  $location, $routeParams, FacronymCouch) {
     delete dict.newentry;
   };
   
+  // Handles the "save" button event
   $scope.saveEntry = function(entry) {
-    var entries = $scope.dictionary.rows;
-    
+    var entries = $scope.acrolist.rows;
+    alert('saveEntry');
     i = 0;
     while ((i < entries.length) && (entries[i].id !== entry)) { i++; }
     if (entries[i].id === entry) {
@@ -117,19 +128,16 @@ function CreateCntrl($scope,  $location, $routeParams, FacronymCouch) {
     }
     $scope.disableEditor(entry);
   };
-  
 }
 
+/**
+ * Controller AcroCntrl.
+ */
 function AcroCntrl($scope, $location, $routeParams, FacronymCouch) {
-
   $scope.name = 'AcroCntrl';
-  
   $scope.inputEnabled = false;
-
-
-
-  $scope.dictionary = FacronymCouch.loadEntries();
-  FacronymCouch.dictionary = $scope.dictionary;
+  $scope.acrolist = FacronymCouch.loadEntries();
+  FacronymCouch.acrolist = $scope.acrolist;
 
   $scope.debugEnabled = false;
   $scope.toggleDebug = function() {
@@ -138,7 +146,7 @@ function AcroCntrl($scope, $location, $routeParams, FacronymCouch) {
 }
 
 /** 
- * Service FacronymCouch - provides the dictionary from a CouchDB resource 
+ * Service FacronymCouch - provides the acrolist from a CouchDB resource 
  */
 angular.module('CouchDB', ['ngResource']).
   factory('FacronymCouch', function($resource) {
@@ -165,8 +173,7 @@ angular.module('CouchDB', ['ngResource']).
       return FacronymCouch.$save({q: '_all_docs', include_docs: 'true', limit: 10});
     };
 
-    // The dictionary model. Actual data loaded from at runtime.
-    dictionary = {entries: [] };
-
+    // The acrolist model. Actual data loaded from at runtime.
+    acrolist = {entries: [] };
     return FacronymCouch;
   });

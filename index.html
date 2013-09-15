@@ -19,7 +19,7 @@
 -->
   </head>
 
-<body ng-app="Facronym">
+<body ng-app="facronym">
   <div ng-controller="AcroCntrl">
 
     <div class="input-prepend search-input">
@@ -40,20 +40,21 @@
     </div>
     <div ng-show="debugEnabled">
       <a href="#/" ng-click="toggleDebug()"><i class='icon-minus-sign'></i></a> Debug View
-      <pre>dictionary={{dictionary | json}}</pre>
+      <pre>dictionary={{acrolist | json}}</pre>
     </div>
   </div>
 
   <!-- CACHE FILE: list.html -->
   <script type="text/ng-template" id="list.html">
 
-  <div ng-show="inputEnabled" class="input-pane">
+    <!-- INPUT new acronym -->
+    <div ng-show="inputEnabled" class="input-pane">
       <h4>Add a new acronym:</h4>
       <form class="form-horizontal">
         <label>Acronym:</label>
-        <input type="text" ng-model="dictionary.newentry.acronym" ng-model-instant required/>
+        <input type="text" ng-model="acrolist.newentry.acronym" ng-model-instant required/>
         <label>Expansion:</label>
-        <textarea rows="3" ng-model="dictionary.newentry.expansion" ng-model-instant required >
+        <textarea rows="3" ng-model="acrolist.newentry.expansion" ng-model-instant required>
         </textarea>
         <br/><br/>
         <button class="btn" ng-click="createEntry()"><i class="icon-plus"></i>Add</button>
@@ -62,61 +63,64 @@
       </form>
       <hr/>
     </div>
-    
+
+    <!-- Display list of acronyms -->
     <div class="acronym-display">
-      <dl ng-repeat="def in dictionary.rows | orderBy:'doc.acronym' | filter:searchText ">
- 
-        <div class="acro-block" ng-hide="def.editorEnabled">
+      <dl ng-repeat="def in acrolist.rows | orderBy:'doc.acronym' | filter:{doc.acronym:searchText}">
+
+        <div class="acro-block">
           <dt class="head">
             <div class="acro-head">
-              
               <div class="acro-wrap">
                 {{def.doc.acronym}}
               </div>
-              
-              <div class="edit-tab" ng-controller="EditCntrl">
+              <!-- delete/edit buttons -->
+              <div class="edit-tab" ng-controller="UpdateCntrl">
                 <div class="tab delete-entry">
                   <a href="#/delete/{{def.id}}?rev={{def.doc._rev}}">
                     <i class="icon-trash"></i>
                   </a>
                 </div>
                 <div class="tab edit-entry">
-                  <a href="#/edit/{{def.id}}"><i class="icon-pencil"></i></a>
+                  <a href="#/" ng-click="enableEditor('{{def.id}}')"><i class="icon-pencil"></i></a>
                 </div>
               </div>
-              
             </div>
           </dt>
-          <dd class="def">{{def.doc.expansion}}</dd>
           
+          <dd class="def">{{def.doc.expansion}}</dd>
+
+          <!-- Confirm delete -->
           <div class="delete-confirm-dialog"
             ng-controller="DeleteCntrl"
-            ng-show="params.acroId==def.id">
+            ng-show="params.acroId == def.id && editAction == 'delete'"> 
             
             <span class='confirm-prompt'>Really delete?</span>
 
             <pre>
-            {{name}}
-            {{params}}
-            {{my_this | json }}
+Scope name {{name}}
+Parameters {{params}}
+Json {{my_this | json }}
             </pre>
             <form name="myForm">
-            <button ng-click="deleteEntry()" class="btn btn-danger">Delete</button>
-            <a href="#/">Cancel</a>
+              <button ng-click="deleteEntry()" class="btn btn-danger">Delete</button>
+              <a href="#/">Cancel</a>
             </form>
           </div>
-
         </div>
-        
-        <div class="acro-block editing" ng-show="def.doc.editorEnabled">
+
+        <!-- Edit the entry -->
+        <div class="acro-block editing"
+             ng-show="def.doc.editorEnabled && editAction == 'edit'"
+             ng-controller="UpdateCntrl"> 
           <dt class="head">           
             <div class="acro-head">
-              <input type="text" ng-model="def.newentry.acronym"/>
+              <input type="text" ng-model="entry.acronym"/>
             </div>            
           </dt>
           
           <dd class="def">
-            <textarea rows="3" ng-model="def.newentry.expansion"></textarea>
+            <textarea rows="3" ng-model="entry.expansion"></textarea>
           </dd>
           
           <div class="edit-options">
